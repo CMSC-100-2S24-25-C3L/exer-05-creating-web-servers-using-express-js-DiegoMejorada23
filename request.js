@@ -1,3 +1,9 @@
+// dvmejorada@up.edu.ph
+// 2023-04708
+// CMSC 100 C3L
+// March 07, 2025
+// Exer 05: Web Server with Express JS
+
 import needle from 'needle';
 
 needle.post(
