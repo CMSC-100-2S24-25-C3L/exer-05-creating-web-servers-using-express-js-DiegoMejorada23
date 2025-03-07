@@ -1,23 +1,82 @@
 import express from 'express';
+import { readFileSync, appendFileSync, readFile } from 'node:fs';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
-app.get('/', (req, res) => {
-    res.send('Hello!');
+
+app.post('/add-book', (req, res) => {
+    const { book_name, isbn, author, year_published } = req.body;
+
+    if ((book_name !== undefined) && (isbn !== undefined) && (author !== undefined) && (year_published !== undefined)) {
+        if ((book_name !== "") && (isbn !== "") && (author !== "") && (year_published !== "")) {
+            const books = readFileSync('books.txt').split('\n');
+
+            for (let i = 0; i < books.length; i++){
+                let book = books[i].split(',');
+
+                if (book[1] === isbn) {
+                    return res.json({ success: false });
+                } 
+            }
+            
+            let book_format = book_name + "," + isbn + "," + author + "," + year_published + "\n";
+
+            try {
+                appendFileSync('books.txt', book_format);
+                return res.json({ success: true });
+            } catch (err) {
+                return res.json({ success: false });
+            }
+        }
+    }
+
+    return res.json({ success: false });
 });
 
-app.get('/greeting', (req, res) => {
-    res.send('Hello ' + req.query.name);
-});
 
-app.post('/submit-data', (req, res) => {
-    console.log(req.body);
-    //res.send ('Received a POST request from ' + req.body.name);
-    const { name, age, city} = req.body;
-    res.send (`Received data: Name - ${name}, Age - ${age}, City - ${city}`);
-});
+app.get('/find-by-isbn-author', (req, res) => {
+    const { isbn, author } = req.query;
+
+    if ((isbn !== undefined) && (author !== undefined)) {
+        if ((isbn !== "") && (author !== "")) {
+            const books = readFileSync('books.txt').split('\n');
+            
+            for (let i = 0; i < books.length; i++){
+                let book = books[i].split(',');
+
+                if ((book[1] === isbn) && (book[2] === author)) {
+                    return res.json({ success: true , book: {book_name: book[0], isbn: book[1], author: book[2], year_published: book[3]}});
+                } 
+            }
+        }
+    }
+
+    return res.json({ success: false });
+})
+
+
+app.get('/find-by-isbn', (req, res) => {
+    const { author } = req.query;
+
+    if (author !== undefined) {
+        if (author !== "") {
+            const books = readFileSync('books.txt').split('\n');
+
+            for (let i = 0; i < books.length; i++){
+                let book = books[i].split(',');
+
+                if (book[2] === author) {
+                    res.json({ success: true, book: {book_name: book[0], isbn: book[1], author: book[2], year_published: book[3]}});
+                    return;
+                } 
+            }
+        }
+    }
+
+    return res.json({ success: false });
+})
 
 app.listen(3000, () => {
     console.log('Server started at port 3000')
