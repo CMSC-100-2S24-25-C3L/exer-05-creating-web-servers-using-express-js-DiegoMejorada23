@@ -3,8 +3,11 @@
 // CMSC 100 C3L
 // March 07, 2025
 // Exer 05: Web Server with Express JS
+// Create an Express JS server that accepts requests on these endpoints (test file)
 
+// Imports
 import needle from 'needle';
+
 
 needle.post(
     'http://localhost:3000/add-book',
@@ -29,4 +32,4 @@ needle.post(
     (err, res) => {
         console.log(res.body);
     }
-);
+);// End of needle.post

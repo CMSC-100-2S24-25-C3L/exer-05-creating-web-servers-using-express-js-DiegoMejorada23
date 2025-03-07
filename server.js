@@ -3,10 +3,13 @@
 // CMSC 100 C3L
 // March 07, 2025
 // Exer 05: Web Server with Express JS
+// Create an Express JS server that accepts requests on these endpoints (function file)
 
+// Imports
 import express from 'express';
 import { readFileSync, appendFileSync, readFile } from 'node:fs';
 
+// Server parser
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
@@ -43,7 +46,7 @@ app.post('/add-book', (req, res) => {
     }
 
     return res.json({ success: false });
-});
+});// End of app.post '/add-book'
 
 
 app.get('/find-by-isbn-author', (req, res) => {
@@ -64,7 +67,7 @@ app.get('/find-by-isbn-author', (req, res) => {
     }
 
     return res.send('');
-})
+})// End of app.get '/find-by-isbn-author'
 
 
 app.get('/find-by-author', (req, res) => {
@@ -94,9 +97,9 @@ app.get('/find-by-author', (req, res) => {
     }
 
     return res.send('');
-})
+})// End of app.get '/find-by-author'
 
 
 app.listen(3000, () => {
     console.log('Server started at port 3000')
-});
+});// End of app.listen
