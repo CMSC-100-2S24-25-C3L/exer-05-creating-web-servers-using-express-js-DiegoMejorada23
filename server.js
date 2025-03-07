@@ -17,17 +17,21 @@ app.post('/add-book', (req, res) => {
 
     if ((book_name !== undefined) && (isbn !== undefined) && (author !== undefined) && (year_published !== undefined)) {
         if ((book_name !== "") && (isbn !== "") && (author !== "") && (year_published !== "")) {
-            const books = readFileSync('books.txt').split('\n');
+            try{
+                    let books = readFileSync('books.txt', 'utf8').split('\n');
 
-            for (let i = 0; i < books.length; i++){
-                let book = books[i].split(',');
+                for (let i = 0; i < books.length; i++){
+                    let book = books[i].split(',');
 
-                if (book[1] === isbn) {
-                    return res.json({ success: false });
-                } 
+                    if (book[1] === isbn) {
+                        return res.json({ success: false });
+                    } 
+                }
+            }
+            catch (err){
             }
             
-            let book_format = book_name + "," + isbn + "," + author + "," + year_published + "\n";
+            let book_format = `${book_name},${isbn},${author},${year_published}\n`;
 
             try {
                 appendFileSync('books.txt', book_format);
@@ -47,42 +51,51 @@ app.get('/find-by-isbn-author', (req, res) => {
 
     if ((isbn !== undefined) && (author !== undefined)) {
         if ((isbn !== "") && (author !== "")) {
-            const books = readFileSync('books.txt').split('\n');
+            const books = readFileSync('books.txt', 'utf8').split('\n');
             
             for (let i = 0; i < books.length; i++){
                 let book = books[i].split(',');
 
                 if ((book[1] === isbn) && (book[2] === author)) {
-                    return res.json({ success: true , book: {book_name: book[0], isbn: book[1], author: book[2], year_published: book[3]}});
+                    return res.send(`Book name: ${book[0]}<br>Isbn: ${book[1]}<br>Author: ${book[2]}<br>Year published: ${book[3]}`);
                 } 
             }
         }
     }
 
-    return res.json({ success: false });
+    return res.send('');
 })
 
 
-app.get('/find-by-isbn', (req, res) => {
+app.get('/find-by-author', (req, res) => {
     const { author } = req.query;
 
     if (author !== undefined) {
         if (author !== "") {
-            const books = readFileSync('books.txt').split('\n');
+            try{
+                const books = readFileSync('books.txt', 'utf8').split('\n');
+                let foundBooks = [];
 
-            for (let i = 0; i < books.length; i++){
-                let book = books[i].split(',');
+                for (let i = 0; i < books.length; i++){
+                    const book = books[i].split(',');
 
-                if (book[2] === author) {
-                    res.json({ success: true, book: {book_name: book[0], isbn: book[1], author: book[2], year_published: book[3]}});
-                    return;
-                } 
+                    if (book[2] === author) {
+                        foundBooks.push(`Book name: ${book[0]}<br>Isbn: ${book[1]}<br>Author: ${book[2]}<br>Year published: ${book[3]}<br><br>`)
+                    } 
+                }
+
+                if (foundBooks.length > 0) {
+                    return res.send(foundBooks.join(""));
+                }
+            }
+            catch (err) {
             }
         }
     }
 
-    return res.json({ success: false });
+    return res.send('');
 })
+
 
 app.listen(3000, () => {
     console.log('Server started at port 3000')
